@@ -16,7 +16,11 @@ import { invitationEmail } from "@/lib/email/templates";
 import { formatAddressLine } from "@/lib/format";
 import { APP_URL } from "@/lib/constants";
 
-export type InviteState = { error: string | null; notice?: string };
+export type InviteState = {
+  error: string | null;
+  notice?: string;
+  inviteUrl?: string;
+};
 
 // -------------------------------------------------------------------------
 // Agent creates an invitation
@@ -76,14 +80,16 @@ export async function createInvitationAction(
     propertyLabel,
     acceptUrl: `${APP_URL}/invite/${raw}`,
   });
+  const inviteUrl = `${APP_URL}/invite/${raw}`;
   const { delivered } = await sendEmail({ to: email, subject, html, text });
 
   revalidatePath(`/transactions/${transactionId}`);
   return {
     error: null,
     notice: delivered
-      ? `Invitation sent to ${email}.`
-      : `Invitation created. Email delivery isn't configured yet, so share the link manually if needed.`,
+      ? `Invitation emailed to ${email}. You can also copy the link below to share directly.`
+      : `Invitation ready. Copy the link below and send it to ${email} (email isn't set up yet).`,
+    inviteUrl,
   };
 }
 
