@@ -72,6 +72,22 @@ export function AppShell({
             </form>
           </div>
         </div>
+        {role === "agent" && (
+          <nav
+            aria-label="Primary mobile"
+            className="flex items-center gap-1 overflow-x-auto border-t border-line px-2 py-1 sm:hidden"
+          >
+            {nav.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                className="whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium text-muted transition hover:bg-canvas hover:text-ink"
+              >
+                {item.label}
+              </Link>
+            ))}
+          </nav>
+        )}
       </header>
 
       <main className="mx-auto max-w-5xl px-4 py-6">{children}</main>

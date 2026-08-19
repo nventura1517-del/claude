@@ -2,13 +2,14 @@
 
 **Status:** Approved. Build in progress.
 
-**Progress:** Phases 0–5 complete — this is the full core MVP workflow (agent
-signup → create transaction → auto milestones → invite buyer → buyer signup →
-mobile tracker → agent updates → buyer sees progress), plus buyer completion
-emails. Next: Phase 6 (referral network). Running the app end-to-end needs a live
-Supabase project and (for email) a Resend key; the code compiles, lints,
-type-checks, and all unit tests pass without them, and the buyer tracker was
-visually verified at phone width.
+**Progress:** All MVP phases (0–9) implemented. Core workflow (agent signup →
+transaction → auto milestones → invite → buyer signup → mobile tracker → updates
+→ live progress) plus the full referral system (network, recommendations,
+attribution ledger, agent analytics) and a Phase 9 hardening pass (mobile agent
+nav, RLS security review in `docs/security.md`). 28 unit tests pass; build,
+typecheck, lint, and format are green. **Not yet run against a live database** —
+that requires the owner to create a Supabase project, run the migrations, and set
+env vars (see `README.md`). See §K for the go-live checklist.
 
 This document holds the recommended architecture, database schema, auth model,
 routes, components, and a phased, testable roadmap. It is the working checklist.
@@ -331,3 +332,39 @@ the product spec's out-of-scope list.
 See `docs/product-spec.md` §12 for the consolidated table. The build can start on
 approval using the recommended defaults; only items 1 (brand name) and 8 (Resend
 sending domain) are hard external dependencies, and both are needed by Phase 3.
+
+---
+
+## K. Go-live checklist (to run the app end-to-end)
+
+The code is complete but has not been run against a live database. To bring it
+up:
+
+1. **Create a Supabase project** (supabase.com). Copy the project URL, anon key,
+   and service-role key.
+2. **Run the migrations** in `supabase/migrations/` in order (0001 → 0005), via
+   the Supabase SQL editor or `supabase db push`.
+3. **Set environment variables** (`.env.local` locally; Vercel project settings
+   in production) per `.env.example`:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`, and (for email)
+   `RESEND_API_KEY` + `EMAIL_FROM`.
+4. **Auth setting:** in Supabase → Authentication, disable "Confirm email" for
+   quick local testing, or keep it on (the signup UI handles both). Invited
+   buyers are created pre-confirmed regardless.
+5. **Email (optional at first):** without `RESEND_API_KEY`, invites and
+   completion emails are logged server-side instead of sent, so the flow is
+   fully testable before email is configured. Add Resend + a verified sending
+   domain when ready.
+6. **Deploy to Vercel**, set the same env vars, and set `NEXT_PUBLIC_APP_URL` to
+   the deployed URL so invite links resolve.
+7. **Smoke test the golden path:** sign up as an agent → create a transaction →
+   invite a buyer (grab the link from the email or the server log) → accept as
+   the buyer → view the tracker → back as agent, mark a milestone complete →
+   confirm the buyer's progress updates → add a professional → recommend →
+   interact as the buyer → check `/analytics`.
+
+### Rename the product
+
+The working name is "Homeward". To change it, edit `APP_NAME` (and `APP_TAGLINE`)
+in `lib/constants.ts` — it flows to the UI and emails from that one place.
