@@ -1,0 +1,47 @@
+@import "tailwindcss";
+
+/*
+ * Design tokens for Homeward. Calm, premium, consumer-finance feel.
+ * Mapped into Tailwind v4 via @theme so utilities like `bg-brand` work.
+ */
+@theme {
+  --color-brand: #1f6feb;
+  --color-brand-dark: #1a5fd0;
+  --color-brand-soft: #e8f0fe;
+
+  --color-ink: #0f172a;
+  --color-muted: #64748b;
+  --color-line: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-canvas: #f6f8fb;
+
+  --color-success: #16a34a;
+  --color-attention: #d97706;
+  --color-danger: #dc2626;
+
+  --radius-card: 1rem;
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Respect users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

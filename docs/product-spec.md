@@ -96,6 +96,7 @@ Each milestone supports: name, plain-language description, sequence, status, due
 date, completion date, responsible party.
 
 ### Status model (resolved)
+
 The four statuses `upcoming / current / complete / attention` are a **display
 concept**. To avoid inconsistent stored state, we store only two facts per
 milestone — `is_complete` and `needs_attention` — plus `completed_at` and
@@ -125,6 +126,7 @@ Model: Domino's Pizza Tracker + package tracking + a premium consumer finance
 app. Mobile-first and jargon-free.
 
 The buyer screen answers, at a glance:
+
 - **Where am I?** — a visual stepper with the current stage highlighted.
 - **What just happened?** — the most recently completed milestone.
 - **What happens next?** — the next milestone and its plain-language explanation.
@@ -180,6 +182,7 @@ The MVP models the funnel as an append-only event ledger per recommendation:
 `shown → viewed → call_initiated → text_initiated → quote_requested → booked → completed`
 
 MVP behavior:
+
 - Events are logged from **in-app** interactions (e.g. buyer taps "Call", "Text",
   or "Request a quote"; agent or buyer confirms "Booked"/"Completed").
 - **No** tracked phone numbers, SMS infrastructure, payments, or external booking
@@ -217,17 +220,17 @@ without owner approval.
 
 ## 12. Open decisions for the owner (consolidated)
 
-| # | Decision | Recommendation |
-|---|----------|----------------|
-| 1 | Product / brand name (for UI, emails, sending domain) | Owner to provide |
-| 2 | Co-buyers / multi-role people supported in V1 | Yes — cheap via participants table |
-| 3 | Milestone due dates: manual vs automatic | Manual, with optional template offsets |
-| 4 | Buyer sees updates: refresh-on-load vs real-time | Refresh-on-load for MVP |
-| 5 | Milestone-completion email to buyer in MVP | Include (simple, high value) |
-| 6 | Who confirms `booked`/`completed` referral events | Agent or buyer; record actor |
-| 7 | Auth method: password, magic link, or both | Email+password, with magic-link optional |
-| 8 | Resend verified sending domain (DNS access) | Owner to provide domain |
-| 9 | Milestone template editable by agents in V1 | No — fixed in code for MVP |
+| #   | Decision                                              | Recommendation                           |
+| --- | ----------------------------------------------------- | ---------------------------------------- |
+| 1   | Product / brand name (for UI, emails, sending domain) | Owner to provide                         |
+| 2   | Co-buyers / multi-role people supported in V1         | Yes — cheap via participants table       |
+| 3   | Milestone due dates: manual vs automatic              | Manual, with optional template offsets   |
+| 4   | Buyer sees updates: refresh-on-load vs real-time      | Refresh-on-load for MVP                  |
+| 5   | Milestone-completion email to buyer in MVP            | Include (simple, high value)             |
+| 6   | Who confirms `booked`/`completed` referral events     | Agent or buyer; record actor             |
+| 7   | Auth method: password, magic link, or both            | Email+password, with magic-link optional |
+| 8   | Resend verified sending domain (DNS access)           | Owner to provide domain                  |
+| 9   | Milestone template editable by agents in V1           | No — fixed in code for MVP               |
 
 These are product/business choices, not technical blockers; sensible defaults are
 proposed so implementation can proceed on approval.

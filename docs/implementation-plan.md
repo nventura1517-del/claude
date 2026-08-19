@@ -1,7 +1,15 @@
 # Implementation Plan — Home Transaction Tracker (MVP)
 
-**Status:** Awaiting owner approval. Do not begin Phase 0 until architecture and
-this plan are approved.
+**Status:** Approved. Build in progress.
+
+**Progress:** All MVP phases (0–9) implemented. Core workflow (agent signup →
+transaction → auto milestones → invite → buyer signup → mobile tracker → updates
+→ live progress) plus the full referral system (network, recommendations,
+attribution ledger, agent analytics) and a Phase 9 hardening pass (mobile agent
+nav, RLS security review in `docs/security.md`). 28 unit tests pass; build,
+typecheck, lint, and format are green. **Not yet run against a live database** —
+that requires the owner to create a Supabase project, run the migrations, and set
+env vars (see `README.md`). See §K for the go-live checklist.
 
 This document holds the recommended architecture, database schema, auth model,
 routes, components, and a phased, testable roadmap. It is the working checklist.
@@ -38,7 +46,9 @@ All tables have `id uuid primary key default gen_random_uuid()` unless noted, an
 policies created in the same migration.
 
 ### `profiles`
+
 Mirror of `auth.users`, created by a trigger on signup.
+
 - `id uuid pk` (= `auth.users.id`)
 - `full_name text`
 - `phone text null`
@@ -46,6 +56,7 @@ Mirror of `auth.users`, created by a trigger on signup.
 - `created_at`
 
 ### `transactions`
+
 - `agent_id uuid` → `profiles.id`
 - `property_street text`, `property_unit text null`, `property_city text`,
   `property_state text`, `property_postal_code text`
@@ -54,13 +65,15 @@ Mirror of `auth.users`, created by a trigger on signup.
 - `actual_closing_date date null`
 - `created_at`, `updated_at`
 
-### `transaction_participants`  *(the access-control backbone)*
+### `transaction_participants` _(the access-control backbone)_
+
 - `transaction_id uuid` → `transactions.id` (cascade delete)
 - `profile_id uuid` → `profiles.id`
 - `role text` — `agent` | `buyer` | `co_buyer` (reserved others later)
 - `unique (transaction_id, profile_id)`
 
 ### `milestones`
+
 - `transaction_id uuid` → `transactions.id` (cascade delete)
 - `template_key text` — stable key from the code template (e.g. `offer_accepted`)
 - `name text`, `description text`
@@ -74,6 +87,7 @@ Mirror of `auth.users`, created by a trigger on signup.
 - `unique (transaction_id, sequence)`
 
 ### `invitations`
+
 - `transaction_id uuid` → `transactions.id` (cascade delete)
 - `email text` (invited address, lowercased)
 - `role text` — role to grant on acceptance (`buyer`)
@@ -84,7 +98,8 @@ Mirror of `auth.users`, created by a trigger on signup.
 - `accepted_at timestamptz null`
 - `accepted_profile_id uuid null` → `profiles.id`
 
-### `professionals`  *(agent's private network)*
+### `professionals` _(agent's private network)_
+
 - `agent_id uuid` → `profiles.id`
 - `name text`, `company text null`
 - `category text` — one of the fixed category set
@@ -93,15 +108,17 @@ Mirror of `auth.users`, created by a trigger on signup.
 - `created_at`, `updated_at`
 
 ### `recommendations`
+
 - `transaction_id uuid` → `transactions.id` (cascade delete)
 - `professional_id uuid` → `professionals.id`
 - `milestone_id uuid null` → `milestones.id` (stage context, optional)
 - `created_by uuid` → `profiles.id` (the agent)
 - `status text` — `active` | `dismissed` (default `active`)
 - `created_at`
-- `unique (transaction_id, professional_id)` *(one live rec per pro per deal)*
+- `unique (transaction_id, professional_id)` _(one live rec per pro per deal)_
 
-### `recommendation_events`  *(append-only attribution ledger)*
+### `recommendation_events` _(append-only attribution ledger)_
+
 - `recommendation_id uuid` → `recommendations.id` (cascade delete)
 - `event_type text` — `shown` | `viewed` | `call_initiated` | `text_initiated`
   | `quote_requested` | `booked` | `completed`
@@ -148,11 +165,13 @@ progress formula for convenient dashboard queries.
 ## D. Routes / pages
 
 **Public / auth**
+
 - `/` — marketing/landing + sign-in entry
 - `/login`, `/signup`
 - `/invite/[token]` — validates token, routes to buyer signup/sign-in, then links the buyer to the transaction
 
 **Agent (desktop-primary, responsive)**
+
 - `/dashboard` — active transactions with attention flags
 - `/transactions/new` — create transaction (address, buyer info, closing date)
 - `/transactions/[id]` — agent transaction detail; update milestones
@@ -161,11 +180,13 @@ progress formula for convenient dashboard queries.
 - `/analytics` — basic referral funnel analytics
 
 **Buyer (mobile-first)**
+
 - `/track` — buyer home; their transaction(s)
 - `/track/[id]` — the visual progress tracker (default buyer screen)
 - milestone detail shown as an in-page sheet/expansion, not a separate route
 
 **Server route handlers / actions**
+
 - invite create, invite accept, milestone toggle, recommendation create, event
   log — all server-side with authorization checks.
 
@@ -194,11 +215,12 @@ Post-login redirect is role-aware: agents → `/dashboard`, buyers → `/track`.
 ## F. Progress calculation
 
 Single helper `lib/milestones/progress.ts` (see CLAUDE.md §8):
+
 - `progress_percent = round(completed / total * 100)`, equal weight.
 - `current_stage` = lowest-`sequence` incomplete milestone.
 - Derived per-milestone display state: complete → attention → current → upcoming.
-Optionally mirrored in a read-only SQL view for dashboard queries. Never duplicate
-the rule in components.
+  Optionally mirrored in a read-only SQL view for dashboard queries. Never duplicate
+  the rule in components.
 
 ---
 
@@ -219,6 +241,7 @@ Each phase must end in a demonstrable state. Do not start a phase before its
 predecessors are green (typecheck + lint + the phase's checks).
 
 ### Phase 0 — Foundation
+
 - [ ] Scaffold Next.js + TypeScript + Tailwind; ESLint/Prettier; `tsc --noEmit` clean.
 - [ ] Supabase project; `@supabase/ssr` clients (RLS client + server-only service client).
 - [ ] `.env.example` (no secrets); Vercel project connected.
@@ -226,11 +249,13 @@ predecessors are green (typecheck + lint + the phase's checks).
 - **Done when:** app builds and deploys a blank authenticated shell.
 
 ### Phase 1 — Auth & profiles
+
 - [ ] Signup/login; `handle_new_user` trigger creates `profiles`.
 - [ ] `profiles` table + RLS; role-aware post-login redirect.
 - **Done when:** an agent can sign up, land on `/dashboard`; session persists.
 
 ### Phase 2 — Transactions & milestone generation
+
 - [ ] `transactions`, `transaction_participants`, `milestones` tables + RLS + helpers.
 - [ ] Milestone template constant + application on transaction create.
 - [ ] `/transactions/new`, `/dashboard`, `/transactions/[id]` (agent view).
@@ -238,6 +263,7 @@ predecessors are green (typecheck + lint + the phase's checks).
 - **Done when:** agent creates a transaction and sees its 13 milestones.
 
 ### Phase 3 — Buyer invitation
+
 - [ ] `invitations` table + hashed tokens; server actions to create/accept.
 - [ ] Resend integration (server-only); invite email.
 - [ ] `/invite/[token]` → buyer signup → participant row created.
@@ -245,12 +271,14 @@ predecessors are green (typecheck + lint + the phase's checks).
 - **Done when:** invited buyer signs up and is linked to the transaction.
 
 ### Phase 4 — Buyer tracker experience
+
 - [ ] `ProgressTracker`, `MilestoneStep`, `MilestoneDetailSheet`; `/track`, `/track/[id]`.
 - [ ] Progress helper wired in; action-items surfaced.
 - **Checks:** mobile viewport, accessibility (keyboard, contrast, labels).
 - **Done when:** buyer sees a beautiful mobile progress view of their purchase.
 
 ### Phase 5 — Milestone updates & progress
+
 - [ ] Agent milestone editor (complete / flag attention / due date).
 - [ ] Buyer view reflects changes on refresh; progress recalculates.
 - [ ] ⚑ Optional: milestone-completion email to buyer (if approved).
@@ -260,10 +288,12 @@ predecessors are green (typecheck + lint + the phase's checks).
 **← This completes the core MVP workflow.**
 
 ### Phase 6 — Referral network
+
 - [ ] `professionals` table + RLS; `/network`, add/edit, `CategoryPicker`.
 - **Done when:** agent manages a categorized professional list.
 
 ### Phase 7 — Recommendations & attribution
+
 - [ ] `recommendations`, `recommendation_events` tables + RLS.
 - [ ] Agent recommends pros per transaction/stage; buyer sees `RecommendationCard`.
 - [ ] In-app event logging (shown/viewed/call/text/quote/booked/completed).
@@ -271,10 +301,12 @@ predecessors are green (typecheck + lint + the phase's checks).
 - **Done when:** buyer interactions produce attribution events.
 
 ### Phase 8 — Agent analytics
+
 - [ ] `/analytics` funnel aggregates per professional/category.
 - **Done when:** agent sees basic referral funnel numbers.
 
 ### Phase 9 — Hardening
+
 - [ ] Accessibility & responsive QA pass; empty/error/loading states.
 - [ ] Security review of all RLS policies against the "no cross-transaction access" rule.
 - [ ] ⚑ Optional: Supabase Realtime for live buyer updates (if approved).
@@ -300,3 +332,39 @@ the product spec's out-of-scope list.
 See `docs/product-spec.md` §12 for the consolidated table. The build can start on
 approval using the recommended defaults; only items 1 (brand name) and 8 (Resend
 sending domain) are hard external dependencies, and both are needed by Phase 3.
+
+---
+
+## K. Go-live checklist (to run the app end-to-end)
+
+The code is complete but has not been run against a live database. To bring it
+up:
+
+1. **Create a Supabase project** (supabase.com). Copy the project URL, anon key,
+   and service-role key.
+2. **Run the migrations** in `supabase/migrations/` in order (0001 → 0005), via
+   the Supabase SQL editor or `supabase db push`.
+3. **Set environment variables** (`.env.local` locally; Vercel project settings
+   in production) per `.env.example`:
+   `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_ANON_KEY`,
+   `SUPABASE_SERVICE_ROLE_KEY`, `NEXT_PUBLIC_APP_URL`, and (for email)
+   `RESEND_API_KEY` + `EMAIL_FROM`.
+4. **Auth setting:** in Supabase → Authentication, disable "Confirm email" for
+   quick local testing, or keep it on (the signup UI handles both). Invited
+   buyers are created pre-confirmed regardless.
+5. **Email (optional at first):** without `RESEND_API_KEY`, invites and
+   completion emails are logged server-side instead of sent, so the flow is
+   fully testable before email is configured. Add Resend + a verified sending
+   domain when ready.
+6. **Deploy to Vercel**, set the same env vars, and set `NEXT_PUBLIC_APP_URL` to
+   the deployed URL so invite links resolve.
+7. **Smoke test the golden path:** sign up as an agent → create a transaction →
+   invite a buyer (grab the link from the email or the server log) → accept as
+   the buyer → view the tracker → back as agent, mark a milestone complete →
+   confirm the buyer's progress updates → add a professional → recommend →
+   interact as the buyer → check `/analytics`.
+
+### Rename the product
+
+The working name is "Homeward". To change it, edit `APP_NAME` (and `APP_TAGLINE`)
+in `lib/constants.ts` — it flows to the UI and emails from that one place.
