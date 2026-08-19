@@ -1,7 +1,11 @@
 # Implementation Plan — Home Transaction Tracker (MVP)
 
-**Status:** Awaiting owner approval. Do not begin Phase 0 until architecture and
-this plan are approved.
+**Status:** Approved. Build in progress.
+
+**Progress:** Phases 0–2 complete (foundation, auth & profiles, transactions &
+milestone generation). Next: Phase 3 (buyer invitation). Everything from Phase 3
+onward requires a live Supabase project + Resend key to run end-to-end; the code
+compiles, lints, type-checks, and unit tests pass without them.
 
 This document holds the recommended architecture, database schema, auth model,
 routes, components, and a phased, testable roadmap. It is the working checklist.

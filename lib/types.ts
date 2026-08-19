@@ -18,3 +18,48 @@ export type Profile = {
   role: Role;
   created_at: string;
 };
+
+export type TransactionStatus = "active" | "closed" | "cancelled";
+
+export type ParticipantRole =
+  | "agent"
+  | "buyer"
+  | "co_buyer"
+  | "lender"
+  | "escrow"
+  | "title"
+  | "seller"
+  | "vendor";
+
+export type Transaction = {
+  id: string;
+  agent_id: string;
+  property_street: string;
+  property_unit: string | null;
+  property_city: string;
+  property_state: string;
+  property_postal_code: string;
+  buyer_name: string | null;
+  buyer_email: string | null;
+  status: TransactionStatus;
+  estimated_closing_date: string | null;
+  actual_closing_date: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type Milestone = {
+  id: string;
+  transaction_id: string;
+  template_key: string;
+  name: string;
+  description: string;
+  sequence: number;
+  is_complete: boolean;
+  needs_attention: boolean;
+  due_date: string | null;
+  completed_at: string | null;
+  responsible_party: string | null;
+  created_at: string;
+  updated_at: string;
+};
