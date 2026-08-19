@@ -48,6 +48,21 @@ export type Transaction = {
   updated_at: string;
 };
 
+export type Professional = {
+  id: string;
+  agent_id: string;
+  name: string;
+  company: string | null;
+  category: string;
+  phone: string | null;
+  email: string | null;
+  website: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
 export type Milestone = {
   id: string;
   transaction_id: string;
