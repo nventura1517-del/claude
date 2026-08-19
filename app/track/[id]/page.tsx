@@ -3,6 +3,7 @@ import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { BuyerTracker } from "@/components/buyer/BuyerTracker";
 import { getBuyerTransactions } from "@/lib/data/transactions";
+import { getBuyerRecommendations } from "@/lib/data/recommendations";
 
 export default async function BuyerTransactionPage({
   params,
@@ -17,9 +18,11 @@ export default async function BuyerTransactionPage({
   const view = views.find((v) => v.transaction.id === id);
   if (!view) notFound();
 
+  const recommendations = await getBuyerRecommendations(id);
+
   return (
     <AppShell role="buyer" userName={profile.full_name}>
-      <BuyerTracker view={view} />
+      <BuyerTracker view={view} recommendations={recommendations} />
     </AppShell>
   );
 }

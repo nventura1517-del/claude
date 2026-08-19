@@ -9,6 +9,10 @@ import {
 } from "@/lib/milestones/progress";
 import { ProgressBar } from "@/components/ProgressBar";
 import {
+  RecommendationCard,
+  type BuyerRecommendation,
+} from "@/components/buyer/RecommendationCard";
+import {
   formatAddressLine,
   formatCityStateZip,
   formatDate,
@@ -44,7 +48,13 @@ function isBuyerAction(m: Milestone, status: MilestoneStatus): boolean {
   return status === "current" && m.responsible_party === "buyer";
 }
 
-export function BuyerTracker({ view }: { view: BuyerTransactionView }) {
+export function BuyerTracker({
+  view,
+  recommendations = [],
+}: {
+  view: BuyerTransactionView;
+  recommendations?: BuyerRecommendation[];
+}) {
   const { transaction, milestones, progress, currentMilestone, lastCompleted } =
     view;
   const [openId, setOpenId] = useState<string | null>(
@@ -162,6 +172,20 @@ export function BuyerTracker({ view }: { view: BuyerTransactionView }) {
           })}
         </ol>
       </section>
+
+      {/* Recommended professionals */}
+      {recommendations.length > 0 && (
+        <section className="mt-6">
+          <h2 className="mb-3 px-1 text-sm font-semibold uppercase tracking-wide text-muted">
+            Recommended by {view.agentName}
+          </h2>
+          <div className="space-y-3">
+            {recommendations.map((rec) => (
+              <RecommendationCard key={rec.id} rec={rec} />
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Who can help */}
       <section className="mt-6 rounded-2xl border border-line bg-surface p-5">

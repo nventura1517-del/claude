@@ -63,6 +63,42 @@ export type Professional = {
   updated_at: string;
 };
 
+export type RecommendationStatus = "active" | "dismissed";
+
+export type RecommendationEventType =
+  | "shown"
+  | "viewed"
+  | "call_initiated"
+  | "text_initiated"
+  | "quote_requested"
+  | "booked"
+  | "completed";
+
+export type Recommendation = {
+  id: string;
+  transaction_id: string;
+  professional_id: string;
+  milestone_id: string | null;
+  created_by: string;
+  status: RecommendationStatus;
+  prof_name: string;
+  prof_company: string | null;
+  prof_category: string;
+  prof_phone: string | null;
+  prof_email: string | null;
+  prof_website: string | null;
+  created_at: string;
+};
+
+export type RecommendationEvent = {
+  id: string;
+  recommendation_id: string;
+  event_type: RecommendationEventType;
+  actor_profile_id: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: string;
+};
+
 export type Milestone = {
   id: string;
   transaction_id: string;

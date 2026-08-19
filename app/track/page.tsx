@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { BuyerTracker } from "@/components/buyer/BuyerTracker";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { getBuyerTransactions } from "@/lib/data/transactions";
+import { getBuyerRecommendations } from "@/lib/data/recommendations";
 import { formatAddressLine, formatDate } from "@/lib/format";
 
 export default async function TrackPage() {
@@ -18,7 +19,12 @@ export default async function TrackPage() {
           description="Once your agent sets up your transaction, your progress tracker will appear here."
         />
       ) : views.length === 1 ? (
-        <BuyerTracker view={views[0]} />
+        <BuyerTracker
+          view={views[0]}
+          recommendations={await getBuyerRecommendations(
+            views[0].transaction.id
+          )}
+        />
       ) : (
         <div className="mx-auto max-w-xl space-y-3">
           <h1 className="text-xl font-semibold text-ink">Your purchases</h1>

@@ -70,6 +70,15 @@ export default async function TransactionDetailPage({
             label={`${progress.completed} of ${progress.total} steps complete`}
           />
         </div>
+
+        <div className="mt-5">
+          <Link
+            href={`/transactions/${transaction.id}/referrals`}
+            className="inline-flex items-center rounded-xl border border-line px-4 py-2 text-sm font-semibold text-ink transition hover:bg-canvas focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand"
+          >
+            Recommend professionals →
+          </Link>
+        </div>
       </div>
 
       <div className="mt-6 rounded-2xl border border-line bg-surface p-5 sm:p-6">
