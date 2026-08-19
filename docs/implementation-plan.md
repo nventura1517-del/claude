@@ -2,10 +2,13 @@
 
 **Status:** Approved. Build in progress.
 
-**Progress:** Phases 0–2 complete (foundation, auth & profiles, transactions &
-milestone generation). Next: Phase 3 (buyer invitation). Everything from Phase 3
-onward requires a live Supabase project + Resend key to run end-to-end; the code
-compiles, lints, type-checks, and unit tests pass without them.
+**Progress:** Phases 0–5 complete — this is the full core MVP workflow (agent
+signup → create transaction → auto milestones → invite buyer → buyer signup →
+mobile tracker → agent updates → buyer sees progress), plus buyer completion
+emails. Next: Phase 6 (referral network). Running the app end-to-end needs a live
+Supabase project and (for email) a Resend key; the code compiles, lints,
+type-checks, and all unit tests pass without them, and the buyer tracker was
+visually verified at phone width.
 
 This document holds the recommended architecture, database schema, auth model,
 routes, components, and a phased, testable roadmap. It is the working checklist.

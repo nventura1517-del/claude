@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { ProgressBar } from "@/components/ProgressBar";
-import { AgentMilestoneList } from "@/components/AgentMilestoneList";
+import { AgentMilestoneEditor } from "@/components/AgentMilestoneEditor";
 import { InviteBuyerForm } from "@/components/InviteBuyerForm";
 import { getTransactionDetail } from "@/lib/data/transactions";
 import {
@@ -94,8 +94,9 @@ export default async function TransactionDetailPage({
       </div>
 
       <h2 className="mb-3 mt-8 text-lg font-semibold text-ink">Milestones</h2>
-      <AgentMilestoneList
+      <AgentMilestoneEditor
         milestones={detail.milestones}
+        transactionId={transaction.id}
         currentSequence={progress.currentSequence}
       />
     </AppShell>
