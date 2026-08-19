@@ -107,6 +107,90 @@ export async function getAgentDashboard(
   );
 }
 
+export type BuyerTransactionView = {
+  transaction: Transaction;
+  milestones: Milestone[];
+  progress: TransactionProgress;
+  currentMilestone: Milestone | null;
+  lastCompleted: Milestone | null;
+  agentName: string;
+  agentPhone: string | null;
+};
+
+function toBuyerView(
+  transaction: Transaction,
+  milestones: Milestone[],
+  agent: Pick<Profile, "full_name" | "phone"> | null
+): BuyerTransactionView {
+  const progress = computeProgress(milestones);
+  const currentMilestone =
+    progress.currentSequence === null
+      ? null
+      : (milestones.find((m) => m.sequence === progress.currentSequence) ??
+        null);
+  const completed = milestones.filter((m) => m.is_complete);
+  const lastCompleted =
+    completed.length > 0 ? completed[completed.length - 1] : null;
+  return {
+    transaction,
+    milestones,
+    progress,
+    currentMilestone,
+    lastCompleted,
+    agentName: agent?.full_name || "Your agent",
+    agentPhone: agent?.phone ?? null,
+  };
+}
+
+/**
+ * All transactions the current buyer participates in, shaped for the tracker.
+ * RLS returns only transactions the caller is a member of.
+ */
+export async function getBuyerTransactions(): Promise<BuyerTransactionView[]> {
+  const supabase = await createClient();
+
+  const { data: txs } = await supabase
+    .from("transactions")
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  const transactions = (txs as Transaction[]) ?? [];
+  if (transactions.length === 0) return [];
+
+  const ids = transactions.map((t) => t.id);
+  const agentIds = Array.from(new Set(transactions.map((t) => t.agent_id)));
+
+  const { data: allMilestones } = await supabase
+    .from("milestones")
+    .select("*")
+    .in("transaction_id", ids)
+    .order("sequence", { ascending: true });
+
+  const { data: agents } = await supabase
+    .from("profiles")
+    .select("id, full_name, phone")
+    .in("id", agentIds);
+
+  const milestonesByTx = new Map<string, Milestone[]>();
+  for (const m of (allMilestones as Milestone[]) ?? []) {
+    const list = milestonesByTx.get(m.transaction_id) ?? [];
+    list.push(m);
+    milestonesByTx.set(m.transaction_id, list);
+  }
+  const agentById = new Map<string, Pick<Profile, "full_name" | "phone">>();
+  for (const a of (agents as Profile[]) ?? []) {
+    agentById.set(a.id, { full_name: a.full_name, phone: a.phone });
+  }
+
+  return transactions.map((t) =>
+    toBuyerView(
+      t,
+      milestonesByTx.get(t.id) ?? [],
+      agentById.get(t.agent_id) ?? null
+    )
+  );
+}
+
 /** A single transaction with its milestones and buyers, or null if no access. */
 export async function getTransactionDetail(
   transactionId: string
