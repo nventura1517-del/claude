@@ -14,11 +14,11 @@ Tracker for buying a house." It coordinates a real-estate transaction between an
 **agent** and a **buyer**, and lets the agent recommend trusted service
 **professionals** from their referral network.
 
-The guiding promise to the buyer: *Where am I? What just happened? What happens
-next? Do I need to do anything? When do I close? Who can help me?*
+The guiding promise to the buyer: _Where am I? What just happened? What happens
+next? Do I need to do anything? When do I close? Who can help me?_
 
-The guiding promise to the agent: *Give clients a great experience while staying
-at the center of the relationship, and track referrals to my network.*
+The guiding promise to the agent: _Give clients a great experience while staying
+at the center of the relationship, and track referrals to my network._
 
 Full spec: `docs/product-spec.md`. Roadmap: `docs/implementation-plan.md`.
 
@@ -45,6 +45,7 @@ Full spec: `docs/product-spec.md`. Roadmap: `docs/implementation-plan.md`.
 ## 3. Scope guardrails
 
 ### In scope for MVP
+
 - Agent signup, transaction creation, milestone auto-generation, milestone updates.
 - Email-based buyer invitation and buyer signup.
 - Mobile-first buyer progress tracker with milestone explanations and action items.
@@ -54,6 +55,7 @@ Full spec: `docs/product-spec.md`. Roadmap: `docs/implementation-plan.md`.
 - Basic agent referral analytics.
 
 ### Explicitly OUT of scope for MVP (do not build without owner approval)
+
 MLS integration, mortgage LOS integration, escrow software integration,
 e-signature, native mobile apps, payments, full CRM, AI assistant, property
 valuation, home-maintenance features, vendor marketplace, advanced/real-time
