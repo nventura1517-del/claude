@@ -4,6 +4,7 @@ import { requireRole } from "@/lib/auth";
 import { AppShell } from "@/components/AppShell";
 import { ProgressBar } from "@/components/ProgressBar";
 import { AgentMilestoneList } from "@/components/AgentMilestoneList";
+import { InviteBuyerForm } from "@/components/InviteBuyerForm";
 import { getTransactionDetail } from "@/lib/data/transactions";
 import {
   formatAddressLine,
@@ -69,6 +70,27 @@ export default async function TransactionDetailPage({
             label={`${progress.completed} of ${progress.total} steps complete`}
           />
         </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-line bg-surface p-5 sm:p-6">
+        <h2 className="text-lg font-semibold text-ink">Buyer access</h2>
+        {buyers.length > 0 ? (
+          <p className="mt-2 text-sm text-muted">
+            <span className="font-medium text-ink">{buyerLabel}</span> has
+            joined and can see their tracker.
+          </p>
+        ) : (
+          <>
+            <p className="mb-3 mt-2 text-sm text-muted">
+              Invite your buyer by email. They&rsquo;ll get a link to set up
+              their mobile progress tracker.
+            </p>
+            <InviteBuyerForm
+              transactionId={transaction.id}
+              defaultEmail={transaction.buyer_email}
+            />
+          </>
+        )}
       </div>
 
       <h2 className="mb-3 mt-8 text-lg font-semibold text-ink">Milestones</h2>
